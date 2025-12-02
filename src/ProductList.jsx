@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
 import "./ProductList.css";
 import CartItem from "./CartItem";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem } from "./CartSlice.jsx";
+
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
+    const cartItemsCount = useSelector((state) =>
+        state.cart.items.reduce((total, item) => total + item.quantity, 0)
+    );
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
     const [addedToCart, setAddedToCart] = useState({});
-
+    const dispatch = useDispatch();
     const handleAddToCart = (product) => {
-        dispatch(addItem(product)); // Dispatch the action to add the product to the cart (Redux action)
+        dispatch(addItem(product));
 
         setAddedToCart((prevState) => ({
-            // Update the local state to reflect that the product has been added
-            ...prevState, // Spread the previous state to retain existing entries
-            [product.name]: true, // Set the current product's name as a key with value 'true' to mark it as added
+            ...prevState,
+            [product.name]: true,
         }));
-        console.log("triggered", product);
     };
 
     const plantsArray = [
@@ -313,7 +317,6 @@ function ProductList({ onHomeClick }) {
                         </a>
                     </div>
                     <div>
-                        {" "}
                         <a
                             href="#"
                             onClick={(e) => handleCartClick(e)}
@@ -344,6 +347,9 @@ function ProductList({ onHomeClick }) {
                                         id="mainIconPathAttribute"
                                     ></path>
                                 </svg>
+                                <span className="cart-count">
+                                    {cartItemsCount}
+                                </span>
                             </h1>
                         </a>
                     </div>
@@ -392,16 +398,25 @@ function ProductList({ onHomeClick }) {
                                                 </div>{" "}
                                                 {/* Display plant description */}
                                                 <div className="product-cost">
-                                                    ${plant.cost}
+                                                    {plant.cost}
                                                 </div>{" "}
                                                 {/* Display plant cost */}
                                                 <button
-                                                    className="product-button"
+                                                    className={`product-button ${
+                                                        addedToCart[plant.name]
+                                                            ? "added-to-cart"
+                                                            : ""
+                                                    }`}
                                                     onClick={() =>
                                                         handleAddToCart(plant)
-                                                    } // Handle adding plant to cart
+                                                    }
+                                                    disabled={
+                                                        addedToCart[plant.name]
+                                                    }
                                                 >
-                                                    Add to Cart
+                                                    {addedToCart[plant.name]
+                                                        ? "Added to Cart"
+                                                        : "Add to Cart"}
                                                 </button>
                                             </div>
                                         )
